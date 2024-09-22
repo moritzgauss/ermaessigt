@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Generate Your Student ID Card</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+        }
+
+        .input-fields {
+            margin-bottom: 20px;
+        }
+
+        .input-fields input {
+            display: block;
+            margin: 10px 0;
+            padding: 10px;
+            font-size: 16px;
+            width: 300px;
+        }
+
+        canvas {
+            border: 2px solid black;
+            margin-top: 20px;
+        }
+
+        #downloadButton {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Generate Your Student ID Card</h1>
+    
+    <!-- Input fields for the user to fill out -->
+    <div class="input-fields">
+        <input type="text" id="additionalText" placeholder="Additional text">
+        <input type="text" id="studentId" placeholder="Number" maxlength="7">
+        <input type="text" id="lastName" placeholder="Last name">
+        <input type="text" id="firstName" placeholder="First name">
+        <input type="file" id="imageUpload" accept="image/*">
+    </div>
+
+    <!-- The Canvas where the card will be drawn -->
+    <canvas id="idCardCanvas" width="956" height="640"></canvas>
+
+    <button id="downloadButton">Download ID as PNG</button>
+
+    <script>
+        const canvas = document.getElementById('idCardCanvas');
+        const ctx = canvas.getContext('2d');
+        const backgroundImageSrc = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.001.png';
+        const backgroundImage = new Image();
+        backgroundImage.src = backgroundImageSrc;
+
+        // Load background image onto canvas when image is ready
+        backgroundImage.onload = function() {
+            drawCanvas();
+        }
+
+        // Variables for storing the text and image
+        let uploadedImage = null;
+        let additionalText = '';
+        let studentId = '';
+        let lastName = '';
+        let firstName = '';
+
+        // Event listeners for input fields
+        document.getElementById('additionalText').addEventListener('input', function(e) {
+            additionalText = e.target.value;
+            drawCanvas();
+        });
+
+        document.getElementById('studentId').addEventListener('input', function(e) {
+            studentId = e.target.value;
+            drawCanvas();
+        });
+
+        document.getElementById('lastName').addEventListener('input', function(e) {
+            lastName = e.target.value;
+            drawCanvas();
+        });
+
+        document.getElementById('firstName').addEventListener('input', function(e) {
+            firstName = e.target.value;
+            drawCanvas();
+        });
+
+        // Image upload event listener
+        document.getElementById('imageUpload').addEventListener('change', function(e) {
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                uploadedImage = new Image();
+                uploadedImage.src = event.target.result;
+                uploadedImage.onload = function() {
+                    drawCanvas();
+                }
+            }
+            reader.readAsDataURL(e.target.files[0]);
+        });
+
+        // Draw everything on the canvas
+        function drawCanvas() {
+            // Clear the canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw background image
+            ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
+
+            // Draw uploaded image (if available)
+            if (uploadedImage) {
+                ctx.drawImage(uploadedImage, 64, 230, 170, 200); // Adjusted for new canvas size
+            }
+
+            // Set text properties
+            ctx.font = '36px Roboto';
+            ctx.fillStyle = 'black';
+
+            // Draw the text on the canvas
+            ctx.fillText(additionalText, 308, 170);  // Additional text adjusted
+            ctx.font = '26px Roboto';
+            ctx.fillText(studentId, 308, 260);  // Student ID adjusted
+            ctx.fillText(lastName, 308, 350);  // Last name adjusted
+            ctx.fillText(firstName, 308, 390);  // First name adjusted
+        }
+
+        // Download the canvas content as PNG
+        document.getElementById('downloadButton').addEventListener('click', function() {
+            const link = document.createElement('a');
+            link.download = 'student_id_card.png';
+
+            // Ensure the canvas is drawn before downloading
+            drawCanvas();
+
+            // Delay the download slightly to ensure canvas is rendered
+            setTimeout(() => {
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            }, 500);  // Small delay to ensure image is drawn
+        });
+    </script>
+
+</body>
+</html>
