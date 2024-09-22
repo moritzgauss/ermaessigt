@@ -30,9 +30,21 @@
             width: 300px;
         }
 
+        .canvas-container {
+            position: relative;
+        }
+
         canvas {
             border: 2px solid black;
             margin-top: 20px;
+        }
+
+        .button-container {
+            position: absolute;
+            right: 0;
+            top: -40px;
+            display: flex;
+            gap: 10px;
         }
 
         #downloadButton {
@@ -46,7 +58,7 @@
 <body>
 
     <h1>Generate Your Student ID Card</h1>
-    
+
     <!-- Input fields for the user to fill out -->
     <div class="input-fields">
         <input type="text" id="additionalText" placeholder="Additional text">
@@ -56,22 +68,40 @@
         <input type="file" id="imageUpload" accept="image/*">
     </div>
 
-    <!-- The Canvas where the card will be drawn -->
-    <canvas id="idCardCanvas" width="956" height="640"></canvas>
+    <!-- The Canvas and button container -->
+    <div class="canvas-container">
+        <canvas id="idCardCanvas" width="956" height="640"></canvas>
+        
+        <!-- Buttons for adding a random logo and switching to English ID -->
+        <div class="button-container">
+            <button id="randomLogoButton">Add Random Logo</button>
+            <button id="englishIdButton">English ID</button>
+        </div>
+    </div>
 
     <button id="downloadButton">Download ID as PNG</button>
 
     <script>
         const canvas = document.getElementById('idCardCanvas');
         const ctx = canvas.getContext('2d');
-        const backgroundImageSrc = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.001.png';
+        let backgroundImageSrc = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.001.png';
         const backgroundImage = new Image();
         backgroundImage.src = backgroundImageSrc;
+
+        // List of logos
+        const logos = [
+            'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/Harvard_University_logo.svg.png',
+            'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/Huberlin-logo.svg.png',
+            'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/Seal_of_Leland_Stanford_Junior_University.png',
+            'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/UdK_Berlin-Logo_farbig.svg.png',
+            'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/UniversitaetTuebingen_WortBildMarke.png',
+            'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/Universität_Potsdam_logo.svg.png'
+        ];
 
         // Load background image onto canvas when image is ready
         backgroundImage.onload = function() {
             drawCanvas();
-        }
+        };
 
         // Variables for storing the text and image
         let uploadedImage = null;
@@ -79,6 +109,7 @@
         let studentId = '';
         let lastName = '';
         let firstName = '';
+        let randomLogo = null;
 
         // Event listeners for input fields
         document.getElementById('additionalText').addEventListener('input', function(e) {
@@ -137,21 +168,40 @@
             ctx.fillText(studentId, 308, 260);  // Student ID adjusted
             ctx.fillText(lastName, 308, 350);  // Last name adjusted
             ctx.fillText(firstName, 308, 390);  // First name adjusted
+
+            // Draw random logo if available
+            if (randomLogo) {
+                ctx.drawImage(randomLogo, canvas.width - 110, 10, 100, 100); // Logo in the upper-right corner
+            }
         }
+
+        // Button to add a random logo
+        document.getElementById('randomLogoButton').addEventListener('click', function() {
+            const randomIndex = Math.floor(Math.random() * logos.length);
+            const logoImage = new Image();
+            logoImage.src = logos[randomIndex];
+            logoImage.onload = function() {
+                randomLogo = logoImage;
+                drawCanvas();
+            };
+        });
+
+        // Button to switch to English ID
+        document.getElementById('englishIdButton').addEventListener('click', function() {
+            backgroundImage.src = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.002.png';
+            drawCanvas();
+        });
 
         // Download the canvas content as PNG
         document.getElementById('downloadButton').addEventListener('click', function() {
             const link = document.createElement('a');
             link.download = 'student_id_card.png';
 
-            // Ensure the canvas is drawn before downloading
-            drawCanvas();
-
             // Delay the download slightly to ensure canvas is rendered
             setTimeout(() => {
                 link.href = canvas.toDataURL('image/png');
                 link.click();
-            }, 500);  // Small delay to ensure image is drawn
+            }, 100);  // Small delay to ensure image is drawn
         });
     </script>
 
