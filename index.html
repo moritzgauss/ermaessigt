@@ -61,10 +61,10 @@
 
     <!-- Input fields for the user to fill out -->
     <div class="input-fields">
-        <input type="text" id="additionalText" placeholder="Additional text">
-        <input type="text" id="studentId" placeholder="Number" maxlength="7">
-        <input type="text" id="lastName" placeholder="Last name">
-        <input type="text" id="firstName" placeholder="First name">
+        <input type="text" id="studentId" placeholder="Student Number?" maxlength="7">
+        <input type="text" id="lastName" placeholder="Last name?">
+        <input type="text" id="firstName" placeholder="First name?">
+                    <input type="text" id="additionalText" placeholder="Year?">
         <input type="file" id="imageUpload" accept="image/*">
     </div>
 
@@ -163,15 +163,15 @@
             ctx.fillStyle = 'black';
 
             // Draw the text on the canvas
-            ctx.fillText(additionalText, 308, 170);  // Additional text adjusted
+            ctx.fillText(additionalText, 308, 400);  // Additional text adjusted
             ctx.font = '26px Roboto';
             ctx.fillText(studentId, 308, 260);  // Student ID adjusted
-            ctx.fillText(lastName, 308, 350);  // Last name adjusted
-            ctx.fillText(firstName, 308, 390);  // First name adjusted
+            ctx.fillText(lastName, 300, 250);  // Last name adjusted
+            ctx.fillText(firstName, 300, 230);  // First name adjusted
 
             // Draw random logo if available
             if (randomLogo) {
-                ctx.drawImage(randomLogo, canvas.width - 110, 10, 100, 100); // Logo in the upper-right corner
+                ctx.drawImage(randomLogo, canvas.width - 200, 150, 100, 100); // Logo in the upper-right corner
             }
         }
 
