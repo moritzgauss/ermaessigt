@@ -54,6 +54,12 @@
             cursor: pointer;
         }
 
+        #studentImage {
+            width: 200px;
+            height: 100px;
+            object-fit: cover; /* Ensure the image doesn't stretch but covers the area */
+        }
+
     </style>
 </head>
 <body>
@@ -89,173 +95,96 @@
         const ctx = canvas.getContext('2d');
         let isEnglish = false; // Track the language state
         let isBackShown = false; // Track if the back of the ID is shown
-        let backgroundImageSrc = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.001.png';
-        const backgroundImage = new Image();
-        backgroundImage.src = backgroundImageSrc;
 
-        // List of logos
-        const logos = [
-            'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/Harvard_University_logo.svg.png',
-            'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/Huberlin-logo.svg.png',
-            'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/Seal_of_Leland_Stanford_Junior_University.png',
-            'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/UdK_Berlin-Logo_farbig.svg.png',
-            'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/UniversitaetTuebingen_WortBildMarke.png',
-            'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/Universität_Potsdam_logo.svg.png'
-        ];
+        // Default ID layout dimensions
+        const cardWidth = canvas.width;
+        const cardHeight = canvas.height;
 
-        // Load background image onto canvas when image is ready
-        backgroundImage.onload = function() {
-            drawCanvas();
-        };
+        // Drawing the card with initial layout
+        function drawCard() {
+            ctx.clearRect(0, 0, cardWidth, cardHeight); // Clear the canvas
 
-        // Variables for storing the text and image
-        let uploadedImage = null;
-        let additionalText = '';
-        let studentId = '';
-        let lastName = '';
-        let firstName = '';
-        let randomLogo = null;
+            // Drawing ID Card Outline
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(20, 20, cardWidth - 40, cardHeight - 40);
 
-        // Event listeners for input fields
-        document.getElementById('additionalText').addEventListener('input', function(e) {
-            additionalText = e.target.value;
-            drawCanvas();
-        });
+            // Drawing placeholders for text and images
+            ctx.fillStyle = 'black';
+            ctx.font = 'bold 28px Roboto';
 
-        document.getElementById('studentId').addEventListener('input', function(e) {
-            studentId = e.target.value;
-            drawCanvas();
-        });
+            // Text Positioning
+            ctx.fillText('Student ID', 60, 70); // Title
 
-        document.getElementById('lastName').addEventListener('input', function(e) {
-            lastName = e.target.value;
-            drawCanvas();
-        });
+            // Personal Info Placement
+            ctx.font = 'bold 24px Roboto';
+            const lastName = document.getElementById('lastName').value || "Max";
+            const firstName = document.getElementById('firstName').value || "Mustermann";
+            const studentId = document.getElementById('studentId').value || "1234567";
 
-        document.getElementById('firstName').addEventListener('input', function(e) {
-            firstName = e.target.value;
-            drawCanvas();
-        });
+            ctx.fillText(`${firstName} ${lastName}`, 60, 160); // Full name
+            ctx.fillText(`Matnr.: ${studentId}`, 60, 220); // Student number
 
-        // Image upload event listener
+            // Additional info text
+            const additionalText = document.getElementById('additionalText').value || "Valid until 14.03.24";
+            ctx.fillText(`${additionalText}`, 60, 280); // Additional text
+
+            // Placeholder for Image
+            ctx.strokeRect(650, 40, 200, 100); // Placeholder for student image (200x100px)
+
+            // Logo placeholder
+            ctx.strokeRect(850, 40, 100, 100); // Placeholder for logo image (100x100px)
+
+            // Barcode area
+            ctx.fillRect(60, 500, 400, 80); // Placeholder for barcode
+        }
+
+        // Function to load uploaded image onto the canvas
         document.getElementById('imageUpload').addEventListener('change', function(e) {
             const reader = new FileReader();
             reader.onload = function(event) {
-                uploadedImage = new Image();
-                uploadedImage.src = event.target.result;
-                uploadedImage.onload = function() {
-                    drawCanvas();
+                const img = new Image();
+                img.onload = function() {
+                    ctx.clearRect(650, 40, 200, 100); // Clear the image placeholder
+                    ctx.drawImage(img, 650, 40, 200, 100); // Draw uploaded image
                 }
+                img.src = event.target.result;
             }
             reader.readAsDataURL(e.target.files[0]);
         });
 
-        // Draw everything on the canvas, with cropping logic for the uploaded image and random logo
-        function drawCanvas() {
-            // Clear the canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw background image
-            ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-
-            // Draw uploaded image (if available), cropped and resized
-            if (uploadedImage && !isBackShown) {
-                // Crop the uploaded image to fit the desired space
-                const imgWidth = uploadedImage.width;
-                const imgHeight = uploadedImage.height;
-                const cropSize = Math.min(imgWidth, imgHeight); // Square crop
-                const cropX = (imgWidth - cropSize) / 2;
-                const cropY = (imgHeight - cropSize) / 2;
-                ctx.drawImage(uploadedImage, cropX, cropY, cropSize, cropSize, 100, 260, 120, 120); // Adjust size and position
-            }
-
-            // Set text properties
-            ctx.fillStyle = 'black';
-
-            // Draw name above "Matnr."
-            if (!isBackShown) {
-                ctx.font = '28px Roboto';
-                ctx.fillText(firstName + " " + lastName, 260, 290);  // Position the full name above Matnr.
-
-                // Draw "Matnr." label and matriculation number
-                ctx.font = '24px Roboto';
-                ctx.fillText("Matnr.", 260, 350);  // Matnr. label
-                ctx.fillText(studentId, 360, 350);  // Matriculation number next to Matnr.
-
-                // Draw year in the grey bar
-                ctx.font = 'bold 36px Roboto';
-                ctx.fillText("bis " + additionalText, 80, 600);  // Year in the grey bar, size adjusted
-            }
-
-            // Draw random logo, cropped and resized, if available
-            if (randomLogo && !isBackShown) {
-                ctx.drawImage(randomLogo, 0, 0, randomLogo.width, randomLogo.height, canvas.width - 200, 150, 100, 100); // Crop and resize logo
-            }
-        }
-
-        // Button to add a random logo
+        // Function to add random logo to the canvas
         document.getElementById('randomLogoButton').addEventListener('click', function() {
-            const randomIndex = Math.floor(Math.random() * logos.length);
-            const logoImage = new Image();
-            logoImage.src = logos[randomIndex];
-            logoImage.onload = function() {
-                randomLogo = logoImage;
-                drawCanvas();
-            };
+            const img = new Image();
+            img.onload = function() {
+                ctx.clearRect(850, 40, 100, 100); // Clear the logo placeholder
+                ctx.drawImage(img, 850, 40, 100, 100); // Draw the random logo
+            }
+            img.src = 'https://via.placeholder.com/100'; // Placeholder image for random logo
         });
 
-        // Button to switch between English and Studentenausweis
+        // Function to switch between German and English layouts
         document.getElementById('switchLanguageButton').addEventListener('click', function() {
-            isEnglish = !isEnglish;  // Toggle the state
-
-            if (isEnglish) {
-                backgroundImage.src = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.002.png';
-                this.textContent = "Studentenausweis";
-            } else {
-                backgroundImage.src = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.001.png';
-                this.textContent = "English ID";
-            }
-
-            drawCanvas();
+            isEnglish = !isEnglish;
+            drawCard(); // Redraw the card with the new language
         });
 
-        // Button to show the back of the ID
-        document.getElementById('showBackButton').addEventListener('click', function() {
-            isBackShown = !isBackShown;  // Toggle the back state
-            if (isBackShown) {
-                backgroundImage.src = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.003.png';
-                this.textContent = "Show Front of ID";
-            } else {
-                backgroundImage.src = isEnglish 
-                    ? 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.002.png' 
-                    : 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.001.png';
-                this.textContent = "Show Back of ID";
-            }
-            drawCanvas();
-        });
-
-        // Clear the canvas
-        document.getElementById('clearCanvasButton').addEventListener('click', function() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            uploadedImage = null;
-            randomLogo = null;
-            studentId = '';
-            lastName = '';
-            firstName = '';
-            additionalText = '';
-        });
-
-        // Download the canvas content as PNG
+        // Download functionality
         document.getElementById('downloadButton').addEventListener('click', function() {
             const link = document.createElement('a');
-            link.download = 'student_id_card.png';
-
-            // Delay the download slightly to ensure canvas is rendered
-            setTimeout(() => {
-                link.href = canvas.toDataURL('image/png', 1.0); // Force high quality with 1.0
-                link.click();
-            }, 100);  // Small delay to ensure image is drawn
+            link.download = 'student_id.png';
+            link.href = canvas.toDataURL();
+            link.click();
         });
+
+        // Clear canvas functionality
+        document.getElementById('clearCanvasButton').addEventListener('click', function() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawCard(); // Redraw the default card layout after clearing
+        });
+
+        // Initial draw on page load
+        drawCard();
 
     </script>
 
