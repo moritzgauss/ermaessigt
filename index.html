@@ -47,12 +47,13 @@
             gap: 10px;
         }
 
-        #downloadButton {
+        #downloadButton, #clearCanvasButton {
             margin-top: 20px;
             padding: 10px 20px;
             font-size: 16px;
             cursor: pointer;
         }
+
     </style>
 </head>
 <body>
@@ -64,7 +65,7 @@
         <input type="text" id="studentId" placeholder="Student Number?" maxlength="7">
         <input type="text" id="lastName" placeholder="Last name?">
         <input type="text" id="firstName" placeholder="First name?">
-                    <input type="text" id="additionalText" placeholder="Year?">
+        <input type="text" id="additionalText" placeholder="Year?">
         <input type="file" id="imageUpload" accept="image/*">
     </div>
 
@@ -72,18 +73,22 @@
     <div class="canvas-container">
         <canvas id="idCardCanvas" width="956" height="640"></canvas>
         
-        <!-- Buttons for adding a random logo and switching to English ID -->
+        <!-- Buttons for adding a random logo, switching to English ID, and clearing the canvas -->
         <div class="button-container">
             <button id="randomLogoButton">Add Random Logo</button>
-            <button id="englishIdButton">English ID</button>
+            <button id="switchLanguageButton">English ID</button>
+            <button id="showBackButton">Show Back of ID</button>
         </div>
     </div>
 
     <button id="downloadButton">Download ID as PNG</button>
+    <button id="clearCanvasButton">Clear Canvas</button>
 
     <script>
         const canvas = document.getElementById('idCardCanvas');
         const ctx = canvas.getContext('2d');
+        let isEnglish = false; // Track the language state
+        let isBackShown = false; // Track if the back of the ID is shown
         let backgroundImageSrc = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.001.png';
         const backgroundImage = new Image();
         backgroundImage.src = backgroundImageSrc;
@@ -145,7 +150,7 @@
             reader.readAsDataURL(e.target.files[0]);
         });
 
-        // Draw everything on the canvas
+        // Draw everything on the canvas, with cropping logic for the uploaded image and random logo
         function drawCanvas() {
             // Clear the canvas
             ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -153,25 +158,38 @@
             // Draw background image
             ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
 
-            // Draw uploaded image (if available)
-            if (uploadedImage) {
-                ctx.drawImage(uploadedImage, 78, 200, 200, 150); // Adjusted for new canvas size
+            // Draw uploaded image (if available), cropped and resized
+            if (uploadedImage && !isBackShown) {
+                // Crop the uploaded image to fit the desired space
+                const imgWidth = uploadedImage.width;
+                const imgHeight = uploadedImage.height;
+                const cropSize = Math.min(imgWidth, imgHeight); // Square crop
+                const cropX = (imgWidth - cropSize) / 2;
+                const cropY = (imgHeight - cropSize) / 2;
+                ctx.drawImage(uploadedImage, cropX, cropY, cropSize, cropSize, 100, 260, 120, 120); // Adjust size and position
             }
 
             // Set text properties
-            ctx.font = '36px Roboto';
             ctx.fillStyle = 'black';
 
-            // Draw the text on the canvas
-            ctx.font = '26px Roboto';
-            ctx.fillText(studentId, 350, 346);  // Student ID adjusted
-            ctx.fillText(lastName, 300, 260);  // Last name adjusted
-            ctx.fillText(firstName, 300, 230);  // First name adjusted
-            ctx.fillText(additionalText, 320, 426);  // Additional text adjusted
+            // Draw name above "Matnr."
+            if (!isBackShown) {
+                ctx.font = '28px Roboto';
+                ctx.fillText(firstName + " " + lastName, 260, 290);  // Position the full name above Matnr.
 
-            // Draw random logo if available
-            if (randomLogo) {
-                ctx.drawImage(randomLogo, canvas.width - 200, 150, 100, 100); // Logo in the upper-right corner
+                // Draw "Matnr." label and matriculation number
+                ctx.font = '24px Roboto';
+                ctx.fillText("Matnr.", 260, 350);  // Matnr. label
+                ctx.fillText(studentId, 360, 350);  // Matriculation number next to Matnr.
+
+                // Draw year in the grey bar
+                ctx.font = 'bold 36px Roboto';
+                ctx.fillText("bis " + additionalText, 80, 600);  // Year in the grey bar, size adjusted
+            }
+
+            // Draw random logo, cropped and resized, if available
+            if (randomLogo && !isBackShown) {
+                ctx.drawImage(randomLogo, 0, 0, randomLogo.width, randomLogo.height, canvas.width - 200, 150, 100, 100); // Crop and resize logo
             }
         }
 
@@ -186,10 +204,45 @@
             };
         });
 
-        // Button to switch to English ID
-        document.getElementById('englishIdButton').addEventListener('click', function() {
-            backgroundImage.src = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.002.png';
+        // Button to switch between English and Studentenausweis
+        document.getElementById('switchLanguageButton').addEventListener('click', function() {
+            isEnglish = !isEnglish;  // Toggle the state
+
+            if (isEnglish) {
+                backgroundImage.src = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.002.png';
+                this.textContent = "Studentenausweis";
+            } else {
+                backgroundImage.src = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.001.png';
+                this.textContent = "English ID";
+            }
+
             drawCanvas();
+        });
+
+        // Button to show the back of the ID
+        document.getElementById('showBackButton').addEventListener('click', function() {
+            isBackShown = !isBackShown;  // Toggle the back state
+            if (isBackShown) {
+                backgroundImage.src = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.003.png';
+                this.textContent = "Show Front of ID";
+            } else {
+                backgroundImage.src = isEnglish 
+                    ? 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.002.png' 
+                    : 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.001.png';
+                this.textContent = "Show Back of ID";
+            }
+            drawCanvas();
+        });
+
+        // Clear the canvas
+        document.getElementById('clearCanvasButton').addEventListener('click', function() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            uploadedImage = null;
+            randomLogo = null;
+            studentId = '';
+            lastName = '';
+            firstName = '';
+            additionalText = '';
         });
 
         // Download the canvas content as PNG
@@ -199,10 +252,11 @@
 
             // Delay the download slightly to ensure canvas is rendered
             setTimeout(() => {
-                link.href = canvas.toDataURL('image/png');
+                link.href = canvas.toDataURL('image/png', 1.0); // Force high quality with 1.0
                 link.click();
             }, 100);  // Small delay to ensure image is drawn
         });
+
     </script>
 
 </body>
