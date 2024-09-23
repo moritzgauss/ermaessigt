@@ -155,7 +155,7 @@
 
             // Draw uploaded image (if available)
             if (uploadedImage) {
-                ctx.drawImage(uploadedImage, 64, 230, 170, 200); // Adjusted for new canvas size
+                ctx.drawImage(uploadedImage, 64, 250, 140, 200); // Adjusted for new canvas size
             }
 
             // Set text properties
@@ -164,10 +164,10 @@
 
             // Draw the text on the canvas
             ctx.font = '26px Roboto';
-            ctx.fillText(studentId, 320, 500);  // Student ID adjusted
+            ctx.fillText(studentId, 320, 360);  // Student ID adjusted
             ctx.fillText(lastName, 300, 260);  // Last name adjusted
             ctx.fillText(firstName, 300, 230);  // First name adjusted
-            ctx.fillText(additionalText, 308, 600);  // Additional text adjusted
+            ctx.fillText(additionalText, 308, 400);  // Additional text adjusted
 
             // Draw random logo if available
             if (randomLogo) {
