@@ -126,6 +126,10 @@
             border: none;
         }
 
+        canvas {
+            display: none;
+        }
+
         .button-container {
             display: flex;
             justify-content: center;
@@ -205,7 +209,8 @@
         <button id="downloadButton">Download Studentenausweis als .png</button>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.7/dist/html2canvas.min.js"></script>
+    <canvas id="canvas" width="956" height="640"></canvas>
+
     <script>
         const idCard = document.getElementById('idCard');
         const studentIdField = document.getElementById('studentIdField');
@@ -218,6 +223,8 @@
         const audioProgress = document.getElementById('audioProgress');
         const currentTime = document.getElementById('currentTime');
         const durationTime = document.getElementById('durationTime');
+        const canvas = document.getElementById('canvas');
+        const ctx = canvas.getContext('2d');
 
         // List of logos
         const logos = [
@@ -265,16 +272,11 @@
 
         // Button to download the card as an image
         document.getElementById('downloadButton').addEventListener('click', function() {
-            html2canvas(idCard, {
-                useCORS: true, // Enable cross-origin image capturing
-                allowTaint: true,
-                logging: true
-            }).then(function(canvas) {
-                const link = document.createElement('a');
-                link.download = 'student_id.png';
-                link.href = canvas.toDataURL('image/png');
-                link.click();
-            });
+            drawIDCard(); // Draw the card content on the canvas
+            const link = document.createElement('a');
+            link.download = 'student_id.png';
+            link.href = canvas.toDataURL('image/png');
+            link.click();
         });
 
         // Clear button to reset fields
@@ -319,6 +321,48 @@
             const minutes = Math.floor(seconds / 60);
             const secs = Math.floor(seconds % 60);
             return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
+
+        function drawIDCard() {
+            // Draw background image
+            const background = new Image();
+            background.src = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/IMG_4570.png';
+            background.onload = function() {
+                ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+
+                // Draw uploaded image
+                if (uploadedImage.src) {
+                    const profileImg = new Image();
+                    profileImg.src = uploadedImage.src;
+                    profileImg.onload = function() {
+                        ctx.drawImage(profileImg, 120, 200, 160, 160);
+                        drawText();
+                    };
+                } else {
+                    drawText();
+                }
+
+                // Draw random logo if available
+                if (randomLogoImg.src) {
+                    const logoImg = new Image();
+                    logoImg.src = randomLogoImg.src;
+                    logoImg.onload = function() {
+                        ctx.drawImage(logoImg, 856, 100, 100, 100);
+                    };
+                }
+            };
+        }
+
+        function drawText() {
+            // Draw name and student ID
+            ctx.font = '28px Roboto';
+            ctx.fillStyle = 'black';
+            ctx.fillText(nameField.textContent, 320, 250);
+            ctx.fillText(studentIdField.textContent, 380, 330);
+
+            // Draw "Gültig bis"
+            ctx.font = '32px Roboto bold';
+            ctx.fillText(additionalTextField.textContent, 120, 200);
         }
     </script>
 
