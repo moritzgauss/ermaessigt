@@ -323,50 +323,61 @@
             return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
         }
 
-        function drawIDCard() {
-            // Ensure cross-origin images are loaded properly
-            const background = new Image();
-            background.crossOrigin = 'anonymous';  // Allow cross-origin image loading
-            background.src = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/IMG_4570.png';
-            background.onload = function() {
-                ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+function drawIDCard() {
+    const background = new Image();
+    background.crossOrigin = 'anonymous'; // Allow cross-origin image loading
+    background.src = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/IMG_4570.png';
+    
+    background.onload = function () {
+        ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
 
-                // Draw uploaded image
-                if (uploadedImage.src) {
-                    const profileImg = new Image();
-                    profileImg.crossOrigin = 'anonymous';  // Allow cross-origin for uploaded images
-                    profileImg.src = uploadedImage.src;
-                    profileImg.onload = function() {
-                        ctx.drawImage(profileImg, 120, 200, 160, 160);
-                        drawText();
-                    };
-                } else {
-                    drawText();
-                }
-
-                // Draw random logo if available
-                if (randomLogoImg.src) {
-                    const logoImg = new Image();
-                    logoImg.crossOrigin = 'anonymous';  // Allow cross-origin for logos
-                    logoImg.src = randomLogoImg.src;
-                    logoImg.onload = function() {
-                        ctx.drawImage(logoImg, 856, 100, 100, 100);
-                    };
-                }
+        // Check if an image was uploaded
+        if (uploadedImage.src) {
+            const profileImg = new Image();
+            profileImg.crossOrigin = 'anonymous'; // Allow cross-origin for uploaded images
+            profileImg.src = uploadedImage.src;
+            profileImg.onload = function () {
+                ctx.drawImage(profileImg, 120, 200, 160, 160);
+                drawText(); // Draw text after profile image is loaded
+                drawLogo(); // Draw logo after profile image
             };
+        } else {
+            drawText(); // Draw text even if no image is uploaded
+            drawLogo(); // Draw logo even if no image is uploaded
         }
+    };
 
-        function drawText() {
-            // Draw name and student ID
-            ctx.font = '28px Roboto';
-            ctx.fillStyle = 'black';
-            ctx.fillText(nameField.textContent, 320, 250);
-            ctx.fillText(studentIdField.textContent, 380, 330);
+    background.onerror = function() {
+        console.error('Failed to load the background image.');
+    };
+}
 
-            // Draw "Gültig bis"
-            ctx.font = '32px Roboto bold';
-            ctx.fillText(additionalTextField.textContent, 120, 200);
-        }
+function drawLogo() {
+    // Draw random logo if available
+    if (randomLogoImg.src) {
+        const logoImg = new Image();
+        logoImg.crossOrigin = 'anonymous';  // Allow cross-origin for logos
+        logoImg.src = randomLogoImg.src;
+        logoImg.onload = function () {
+            ctx.drawImage(logoImg, 856, 100, 100, 100);
+        };
+        logoImg.onerror = function () {
+            console.error('Failed to load the logo image.');
+        };
+    }
+}
+
+function drawText() {
+    // Draw name and student ID
+    ctx.font = '28px Roboto';
+    ctx.fillStyle = 'black';
+    ctx.fillText(nameField.textContent, 320, 250);
+    ctx.fillText(studentIdField.textContent, 380, 330);
+
+    // Draw "Gültig bis"
+    ctx.font = '32px Roboto bold';
+    ctx.fillText(additionalTextField.textContent, 120, 500);
+}
     </script>
 
 </body>
