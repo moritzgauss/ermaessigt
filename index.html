@@ -204,8 +204,8 @@
     </div>
 
     <div class="button-container">
-        <button id="drawAndDownloadButton">Kurz warten, HIER KLICKEN (neuer tab mit Bild), lange auf Id tippen/halten und Bild sichern</button>
-        <button id="hiddenDrawButton" style="display: none;">Pre-draw Canvas</button>
+        <button id="drawButton">Erst hier drücken (Bild zeichnen)</button>
+        <button id="downloadButton" disabled>Jetzt hier drücken (Bild sichern)</button>
     </div>
 
     <canvas id="canvas" width="956" height="640"></canvas>
@@ -224,8 +224,8 @@
         const durationTime = document.getElementById('durationTime');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
-        const drawAndDownloadButton = document.getElementById('drawAndDownloadButton');
-        const hiddenDrawButton = document.getElementById('hiddenDrawButton');
+        const drawButton = document.getElementById('drawButton');
+        const downloadButton = document.getElementById('downloadButton');
 
         const logos = [
             'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/Harvard_University_logo.svg.png',
@@ -258,8 +258,7 @@
             reader.onload = function () {
                 uploadedImage.src = reader.result;
             };
-            reader.readAsDataURL
-            (event.target.files[0]);
+            reader.readAsDataURL(event.target.files[0]);
         });
 
         document.getElementById('randomLogoButton').addEventListener('click', function () {
@@ -279,68 +278,6 @@
             randomLogoImg.src = '';
         });
 
-        function drawCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-            ctx.drawImage(idCard, 0, 0);
-
-            if (uploadedImage.src) {
-                ctx.drawImage(uploadedImage, 120, 200, 160, 160);
-            }
-
-            if (randomLogoImg.src) {
-                ctx.drawImage(randomLogoImg, 780, 100, 100, 100);
-            }
-
-            ctx.font = '28px Roboto';
-            ctx.fillStyle = 'black';
-            ctx.fillText(nameField.textContent, 320, 250);
-
-            ctx.font = '24px Roboto';
-            ctx.fillText(studentIdField.textContent, 380, 330);
-
-            ctx.font = '32px Roboto bold';
-            ctx.fillText(additionalTextField.textContent, 120, 490);
-        }
-
-        drawAndDownloadButton.addEventListener('click', function () {
-            drawCanvas();
-            const dataURL = canvas.toDataURL();
-            const newTab = window.open('about:blank', 'image from canvas');
-            newTab.document.write("<img src='" + dataURL + "' alt='ID Card Image'/>");
-
-            // Change button text after first click
-            drawAndDownloadButton.textContent = "Jetzt nochmal (neuer Tab)!";
-        });
-
-        hiddenDrawButton.addEventListener('click', function () {
-            drawCanvas();
-        });
-
-        hiddenDrawButton.click(); // Automatically draw when the page loads
-
-        // Audio player functionality
-        einsteinAudio.addEventListener('loadedmetadata', function () {
-            const duration = Math.floor(einsteinAudio.duration);
-            const minutes = Math.floor(duration / 60);
-            const seconds = duration % 60;
-            durationTime.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
-        });
-
-        einsteinAudio.addEventListener('timeupdate', function () {
-            const currentTimeValue = Math.floor(einsteinAudio.currentTime);
-            const minutes = Math.floor(currentTimeValue / 60);
-            const seconds = currentTimeValue % 60;
-            currentTime.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
-            const progressValue = (einsteinAudio.currentTime / einsteinAudio.duration) * 100;
-            audioProgress.value = progressValue;
-        });
-
-        audioProgress.addEventListener('input', function () {
-            const seekTime = (audioProgress.value / 100) * einsteinAudio.duration;
-            einsteinAudio.currentTime = seekTime;
-        });
-
         playButton.addEventListener('click', function () {
             if (einsteinAudio.paused) {
                 einsteinAudio.play();
@@ -349,6 +286,38 @@
                 einsteinAudio.pause();
                 playButton.textContent = '▶';
             }
+        });
+
+        einsteinAudio.addEventListener('timeupdate', function () {
+            const currentMinutes = Math.floor(einsteinAudio.currentTime / 60);
+            const currentSeconds = Math.floor(einsteinAudio.currentTime % 60).toString().padStart(2, '0');
+            currentTime.textContent = `${currentMinutes}:${currentSeconds}`;
+
+            const progressPercent = (einsteinAudio.currentTime / einsteinAudio.duration) * 100;
+            audioProgress.value = progressPercent;
+        });
+
+        einsteinAudio.addEventListener('loadedmetadata', function () {
+            const totalMinutes = Math.floor(einsteinAudio.duration / 60);
+            const totalSeconds = Math.floor(einsteinAudio.duration % 60).toString().padStart(2, '0');
+            durationTime.textContent = `${totalMinutes}:${totalSeconds}`;
+        });
+
+        audioProgress.addEventListener('input', function () {
+            const seekTime = (audioProgress.value / 100) * einsteinAudio.duration;
+            einsteinAudio.currentTime = seekTime;
+        });
+
+        drawButton.addEventListener('click', function () {
+            ctx.drawImage(idCard, 0, 0, canvas.width, canvas.height);
+            downloadButton.disabled = false;
+        });
+
+        downloadButton.addEventListener('click', function () {
+            const link = document.createElement('a');
+            link.download = 'student_id_card.png';
+            link.href = canvas.toDataURL();
+            link.click();
         });
     </script>
 </body>
