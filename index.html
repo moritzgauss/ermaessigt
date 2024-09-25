@@ -111,7 +111,7 @@
 
         #additionalTextField {
             position: absolute;
-            top: 480px;
+            top: 460px;
             left: 120px;
             font-size: 32px;
             font-weight: bold;
@@ -204,7 +204,8 @@
     </div>
 
     <div class="button-container">
-        <button id="downloadButton">Kurz warten, HIER KLICKEN (neuer tab mit Bild), lange auf Id tippen/halten und Bild sichern</button>
+        <button id="drawAndDownloadButton">Kurz warten, HIER KLICKEN (neuer tab mit Bild), lange auf Id tippen/halten und Bild sichern</button>
+        <button id="hiddenDrawButton" style="display: none;">Pre-draw Canvas</button>
     </div>
 
     <canvas id="canvas" width="956" height="640"></canvas>
@@ -223,6 +224,8 @@
         const durationTime = document.getElementById('durationTime');
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
+        const drawAndDownloadButton = document.getElementById('drawAndDownloadButton');
+        const hiddenDrawButton = document.getElementById('hiddenDrawButton');
 
         const logos = [
             'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/Harvard_University_logo.svg.png',
@@ -230,33 +233,33 @@
             'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/Seal_of_Leland_Stanford_Junior_University.png',
             'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/UdK_Berlin-Logo_farbig.svg.png',
             'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/UniversitaetTuebingen_WortBildMarke.png',
-            'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/Universität_Potsdam_logo.svg.png'
+            'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/Universitaet_Wien_logo.svg.png',
+            'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/JHU-Logo.png'
         ];
 
-        document.getElementById('studentId').addEventListener('input', function (e) {
-            studentIdField.textContent = "Matnr.: " + e.target.value;
+        document.getElementById('studentId').addEventListener('input', function () {
+            studentIdField.textContent = this.value;
         });
 
-        document.getElementById('lastName').addEventListener('input', function (e) {
-            const firstName = document.getElementById('firstName').value;
-            nameField.textContent = firstName + " " + e.target.value;
+        document.getElementById('lastName').addEventListener('input', function () {
+            nameField.textContent = this.value + ' ' + document.getElementById('firstName').value;
         });
 
-        document.getElementById('firstName').addEventListener('input', function (e) {
-            const lastName = document.getElementById('lastName').value;
-            nameField.textContent = e.target.value + " " + lastName;
+        document.getElementById('firstName').addEventListener('input', function () {
+            nameField.textContent = document.getElementById('lastName').value + ' ' + this.value;
         });
 
-        document.getElementById('additionalText').addEventListener('input', function (e) {
-            additionalTextField.textContent = "Gültig bis: " + e.target.value;
+        document.getElementById('additionalText').addEventListener('input', function () {
+            additionalTextField.textContent = this.value;
         });
 
-        document.getElementById('imageUpload').addEventListener('change', function (e) {
+        document.getElementById('imageUpload').addEventListener('change', function (event) {
             const reader = new FileReader();
-            reader.onload = function (event) {
-                uploadedImage.src = event.target.result;
+            reader.onload = function () {
+                uploadedImage.src = reader.result;
             };
-            reader.readAsDataURL(e.target.files[0]);
+            reader.readAsDataURL
+            (event.target.files[0]);
         });
 
         document.getElementById('randomLogoButton').addEventListener('click', function () {
@@ -269,82 +272,75 @@
             document.getElementById('lastName').value = '';
             document.getElementById('firstName').value = '';
             document.getElementById('additionalText').value = '';
-            uploadedImage.src = '';
-            randomLogoImg.src = '';
             studentIdField.textContent = '';
             nameField.textContent = '';
             additionalTextField.textContent = '';
+            uploadedImage.src = '';
+            randomLogoImg.src = '';
         });
 
-        // Button to open the card in a new tab for downloading
-        document.getElementById('downloadButton').addEventListener('click', function () {
-            drawIDCard(); // Draw the card content on the canvas
-            const dataUrl = canvas.toDataURL('image/png');
-            const newTab = window.open();
-            newTab.document.body.innerHTML = `<img src="${dataUrl}" alt="Student ID">`;
-        });
+        function drawCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-        function drawIDCard() {
-            // Ensure cross-origin images are loaded properly
-            const background = new Image();
-            background.crossOrigin = 'anonymous';  // Allow cross-origin image loading
-            background.src = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/IMG_4570.png';
-            
-            background.onload = function () {
-                ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+            ctx.drawImage(idCard, 0, 0);
 
-                // Check if an image was uploaded
-                if (uploadedImage.src) {
-                    const profileImg = new Image();
-                    profileImg.crossOrigin = 'anonymous';  // Allow cross-origin for uploaded images
-                    profileImg.src = uploadedImage.src;
-                    profileImg.onload = function () {
-                        ctx.drawImage(profileImg, 120, 200, 160, 160);
-                        drawText(); // Draw text after profile image is loaded
-                        drawLogo(); // Draw logo after profile image
-                    };
-                } else {
-                    drawText(); // Draw text even if no image is uploaded
-                    drawLogo(); // Draw logo even if no image is uploaded
-                }
-            };
-
-            background.onerror = function () {
-                console.error('Failed to load the background image.');
-            };
-        }
-
-        function drawLogo() {
-            // Draw random logo if available
-            if (randomLogoImg.src) {
-                const logoImg = new Image();
-                                logoImg.crossOrigin = 'anonymous';  // Allow cross-origin for logo images
-                logoImg.src = randomLogoImg.src;
-                logoImg.onload = function () {
-                    ctx.drawImage(logoImg, 740, 120, 100, 100);
-                };
+            if (uploadedImage.src) {
+                ctx.drawImage(uploadedImage, 120, 200, 160, 160);
             }
-        }
 
-        function drawText() {
+            if (randomLogoImg.src) {
+                ctx.drawImage(randomLogoImg, 780, 100, 100, 100);
+            }
+
             ctx.font = '28px Roboto';
             ctx.fillStyle = 'black';
+            ctx.fillText(nameField.textContent, 320, 250);
 
-            // Draw name
-            const name = nameField.textContent;
-            ctx.fillText(name, 320, 250);
+            ctx.font = '24px Roboto';
+            ctx.fillText(studentIdField.textContent, 380, 330);
 
-            // Draw student ID
-            const studentId = studentIdField.textContent;
-            ctx.fillText(studentId, 380, 330);
-
-            // Draw additional text (expiry date)
-            const additionalText = additionalTextField.textContent;
-            ctx.font = '32px Roboto';
-            ctx.fillText(additionalText, 120, 460);
+            ctx.font = '32px Roboto bold';
+            ctx.fillText(additionalTextField.textContent, 120, 490);
         }
 
-        // Audio player controls
+        drawAndDownloadButton.addEventListener('click', function () {
+            drawCanvas();
+            const dataURL = canvas.toDataURL();
+            const newTab = window.open('about:blank', 'image from canvas');
+            newTab.document.write("<img src='" + dataURL + "' alt='ID Card Image'/>");
+
+            // Change button text after first click
+            drawAndDownloadButton.textContent = "Jetzt nochmal (neuer Tab)!";
+        });
+
+        hiddenDrawButton.addEventListener('click', function () {
+            drawCanvas();
+        });
+
+        hiddenDrawButton.click(); // Automatically draw when the page loads
+
+        // Audio player functionality
+        einsteinAudio.addEventListener('loadedmetadata', function () {
+            const duration = Math.floor(einsteinAudio.duration);
+            const minutes = Math.floor(duration / 60);
+            const seconds = duration % 60;
+            durationTime.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+        });
+
+        einsteinAudio.addEventListener('timeupdate', function () {
+            const currentTimeValue = Math.floor(einsteinAudio.currentTime);
+            const minutes = Math.floor(currentTimeValue / 60);
+            const seconds = currentTimeValue % 60;
+            currentTime.textContent = `${minutes}:${seconds < 10 ? '0' + seconds : seconds}`;
+            const progressValue = (einsteinAudio.currentTime / einsteinAudio.duration) * 100;
+            audioProgress.value = progressValue;
+        });
+
+        audioProgress.addEventListener('input', function () {
+            const seekTime = (audioProgress.value / 100) * einsteinAudio.duration;
+            einsteinAudio.currentTime = seekTime;
+        });
+
         playButton.addEventListener('click', function () {
             if (einsteinAudio.paused) {
                 einsteinAudio.play();
@@ -354,25 +350,6 @@
                 playButton.textContent = '▶';
             }
         });
-
-        einsteinAudio.addEventListener('timeupdate', function () {
-            const current = Math.floor(einsteinAudio.currentTime);
-            const duration = Math.floor(einsteinAudio.duration);
-            audioProgress.value = (current / duration) * 100;
-            currentTime.textContent = formatTime(current);
-            durationTime.textContent = formatTime(duration);
-        });
-
-        audioProgress.addEventListener('input', function () {
-            const value = audioProgress.value;
-            einsteinAudio.currentTime = (value / 100) * einsteinAudio.duration;
-        });
-
-        function formatTime(seconds) {
-            const minutes = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
-        }
     </script>
 </body>
 </html>
