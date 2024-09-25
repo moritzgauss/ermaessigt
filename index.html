@@ -204,7 +204,7 @@
     </div>
 
     <div class="button-container">
-        <button id="downloadButton">Download Studentenausweis als .png</button>
+        <button id="downloadButton">In neuem Tab öffnen, lange auf Id tippen/halten und Bild sichern</button>
     </div>
 
     <canvas id="canvas" width="956" height="640"></canvas>
@@ -321,7 +321,7 @@
                                 logoImg.crossOrigin = 'anonymous';  // Allow cross-origin for logo images
                 logoImg.src = randomLogoImg.src;
                 logoImg.onload = function () {
-                    ctx.drawImage(logoImg, 800, 100, 100, 100);
+                    ctx.drawImage(logoImg, 740, 100, 100, 100);
                 };
             }
         }
@@ -341,7 +341,7 @@
             // Draw additional text (expiry date)
             const additionalText = additionalTextField.textContent;
             ctx.font = '32px Roboto';
-            ctx.fillText(additionalText, 120, 500);
+            ctx.fillText(additionalText, 120, 460);
         }
 
         // Audio player controls
