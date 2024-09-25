@@ -98,7 +98,7 @@
         #nameField {
             position: absolute;
             top: 230px;
-            left: 320px; /* Increase left gap */
+            left: 320px;
             font-size: 28px;
         }
 
@@ -111,9 +111,9 @@
 
         #additionalTextField {
             position: absolute;
-            top: 480px; /* Move up by 20px */
-            left: 120px; /* Align with the image */
-            font-size: 32px; /* Increase font size */
+            top: 480px;
+            left: 120px;
+            font-size: 32px;
             font-weight: bold;
         }
 
@@ -122,7 +122,7 @@
             width: 100px;
             height: 100px;
             top: 100px;
-            right: 100px; /* Move left by reducing right distance */
+            right: 100px;
             border: none;
         }
 
@@ -182,7 +182,6 @@
         <audio id="einsteinAudio" src="https://raw.githubusercontent.com/moritzgauss/ermaessigt/main/assets/einstein.mp3"></audio>
     </div>
 
-    <!-- Input fields for the user to fill out -->
     <div class="input-fields">
         <input type="text" id="studentId" placeholder="Matrikelnunmer?" maxlength="7">
         <input type="text" id="lastName" placeholder="Nachname?">
@@ -191,7 +190,6 @@
         <input type="file" id="imageUpload" accept="image/*">
     </div>
 
-    <!-- ID Card structure -->
     <div id="idCard" class="id-card">
         <img id="uploadedImage" class="uploaded-image" alt="Profile Image">
         <div id="nameField"></div>
@@ -226,7 +224,6 @@
         const canvas = document.getElementById('canvas');
         const ctx = canvas.getContext('2d');
 
-        // List of logos
         const logos = [
             'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/Harvard_University_logo.svg.png',
             'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/Huberlin-logo.svg.png',
@@ -236,85 +233,139 @@
             'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/Universität_Potsdam_logo.svg.png'
         ];
 
-        // Update text fields
-        document.getElementById('studentId').addEventListener('input', function(e) {
+        document.getElementById('studentId').addEventListener('input', function (e) {
             studentIdField.textContent = "Matnr.: " + e.target.value;
         });
 
-        document.getElementById('lastName').addEventListener('input', function(e) {
+        document.getElementById('lastName').addEventListener('input', function (e) {
             const firstName = document.getElementById('firstName').value;
             nameField.textContent = firstName + " " + e.target.value;
         });
 
-        document.getElementById('firstName').addEventListener('input', function(e) {
+        document.getElementById('firstName').addEventListener('input', function (e) {
             const lastName = document.getElementById('lastName').value;
             nameField.textContent = e.target.value + " " + lastName;
         });
 
-        document.getElementById('additionalText').addEventListener('input', function(e) {
+        document.getElementById('additionalText').addEventListener('input', function (e) {
             additionalTextField.textContent = "Gültig bis: " + e.target.value;
         });
 
-        // Image upload logic
-        document.getElementById('imageUpload').addEventListener('change', function(e) {
+        document.getElementById('imageUpload').addEventListener('change', function (e) {
             const reader = new FileReader();
-            reader.onload = function(event) {
+            reader.onload = function (event) {
                 uploadedImage.src = event.target.result;
             };
             reader.readAsDataURL(e.target.files[0]);
         });
 
-        // Button to add a random logo
-        document.getElementById('randomLogoButton').addEventListener('click', function() {
+        document.getElementById('randomLogoButton').addEventListener('click', function () {
             const randomIndex = Math.floor(Math.random() * logos.length);
             randomLogoImg.src = logos[randomIndex];
         });
 
-        // Button to download the card as an image
-        document.getElementById('downloadButton').addEventListener('click', function() {
-            drawIDCard(); // Draw the card content on the canvas
-            const link = document.createElement('a');
-            link.download = 'student_id.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-        });
-
-        // Clear button to reset fields
-        document.getElementById('clearButton').addEventListener('click', function() {
+        document.getElementById('clearButton').addEventListener('click', function () {
             document.getElementById('studentId').value = '';
             document.getElementById('lastName').value = '';
             document.getElementById('firstName').value = '';
             document.getElementById('additionalText').value = '';
+            uploadedImage.src = '';
+            randomLogoImg.src = '';
             studentIdField.textContent = '';
             nameField.textContent = '';
             additionalTextField.textContent = '';
-            uploadedImage.src = '';
-            randomLogoImg.src = '';
         });
 
-        // Play/pause the Einstein audio
-        playButton.addEventListener('click', function() {
+        // Button to open the card in a new tab for downloading
+        document.getElementById('downloadButton').addEventListener('click', function () {
+            drawIDCard(); // Draw the card content on the canvas
+            const dataUrl = canvas.toDataURL('image/png');
+            const newTab = window.open();
+            newTab.document.body.innerHTML = `<img src="${dataUrl}" alt="Student ID">`;
+        });
+
+        function drawIDCard() {
+            // Ensure cross-origin images are loaded properly
+            const background = new Image();
+            background.crossOrigin = 'anonymous';  // Allow cross-origin image loading
+            background.src = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/IMG_4570.png';
+            
+            background.onload = function () {
+                ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
+
+                // Check if an image was uploaded
+                if (uploadedImage.src) {
+                    const profileImg = new Image();
+                    profileImg.crossOrigin = 'anonymous';  // Allow cross-origin for uploaded images
+                    profileImg.src = uploadedImage.src;
+                    profileImg.onload = function () {
+                        ctx.drawImage(profileImg, 120, 200, 160, 160);
+                        drawText(); // Draw text after profile image is loaded
+                        drawLogo(); // Draw logo after profile image
+                    };
+                } else {
+                    drawText(); // Draw text even if no image is uploaded
+                    drawLogo(); // Draw logo even if no image is uploaded
+                }
+            };
+
+            background.onerror = function () {
+                console.error('Failed to load the background image.');
+            };
+        }
+
+        function drawLogo() {
+            // Draw random logo if available
+            if (randomLogoImg.src) {
+                const logoImg = new Image();
+                                logoImg.crossOrigin = 'anonymous';  // Allow cross-origin for logo images
+                logoImg.src = randomLogoImg.src;
+                logoImg.onload = function () {
+                    ctx.drawImage(logoImg, 800, 100, 100, 100);
+                };
+            }
+        }
+
+        function drawText() {
+            ctx.font = '28px Roboto';
+            ctx.fillStyle = 'black';
+
+            // Draw name
+            const name = nameField.textContent;
+            ctx.fillText(name, 320, 250);
+
+            // Draw student ID
+            const studentId = studentIdField.textContent;
+            ctx.fillText(studentId, 380, 330);
+
+            // Draw additional text (expiry date)
+            const additionalText = additionalTextField.textContent;
+            ctx.font = '32px Roboto';
+            ctx.fillText(additionalText, 120, 500);
+        }
+
+        // Audio player controls
+        playButton.addEventListener('click', function () {
             if (einsteinAudio.paused) {
                 einsteinAudio.play();
-                playButton.textContent = '❚❚'; // Pause symbol
+                playButton.textContent = '⏸';
             } else {
                 einsteinAudio.pause();
-                playButton.textContent = '▶'; // Play symbol
+                playButton.textContent = '▶';
             }
         });
 
-        // Update audio progress
-        einsteinAudio.addEventListener('loadedmetadata', function() {
-            durationTime.textContent = formatTime(einsteinAudio.duration);
+        einsteinAudio.addEventListener('timeupdate', function () {
+            const current = Math.floor(einsteinAudio.currentTime);
+            const duration = Math.floor(einsteinAudio.duration);
+            audioProgress.value = (current / duration) * 100;
+            currentTime.textContent = formatTime(current);
+            durationTime.textContent = formatTime(duration);
         });
 
-        einsteinAudio.addEventListener('timeupdate', function() {
-            audioProgress.value = (einsteinAudio.currentTime / einsteinAudio.duration) * 100;
-            currentTime.textContent = formatTime(einsteinAudio.currentTime);
-        });
-
-        audioProgress.addEventListener('input', function() {
-            einsteinAudio.currentTime = (audioProgress.value / 100) * einsteinAudio.duration;
+        audioProgress.addEventListener('input', function () {
+            const value = audioProgress.value;
+            einsteinAudio.currentTime = (value / 100) * einsteinAudio.duration;
         });
 
         function formatTime(seconds) {
@@ -322,63 +373,6 @@
             const secs = Math.floor(seconds % 60);
             return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
         }
-
-function drawIDCard() {
-    const background = new Image();
-    background.crossOrigin = 'anonymous'; // Allow cross-origin image loading
-    background.src = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/IMG_4570.png';
-    
-    background.onload = function () {
-        ctx.drawImage(background, 0, 0, canvas.width, canvas.height);
-
-        // Check if an image was uploaded
-        if (uploadedImage.src) {
-            const profileImg = new Image();
-            profileImg.crossOrigin = 'anonymous'; // Allow cross-origin for uploaded images
-            profileImg.src = uploadedImage.src;
-            profileImg.onload = function () {
-                ctx.drawImage(profileImg, 120, 200, 160, 160);
-                drawText(); // Draw text after profile image is loaded
-                drawLogo(); // Draw logo after profile image
-            };
-        } else {
-            drawText(); // Draw text even if no image is uploaded
-            drawLogo(); // Draw logo even if no image is uploaded
-        }
-    };
-
-    background.onerror = function() {
-        console.error('Failed to load the background image.');
-    };
-}
-
-function drawLogo() {
-    // Draw random logo if available
-    if (randomLogoImg.src) {
-        const logoImg = new Image();
-        logoImg.crossOrigin = 'anonymous';  // Allow cross-origin for logos
-        logoImg.src = randomLogoImg.src;
-        logoImg.onload = function () {
-            ctx.drawImage(logoImg, 856, 100, 100, 100);
-        };
-        logoImg.onerror = function () {
-            console.error('Failed to load the logo image.');
-        };
-    }
-}
-
-function drawText() {
-    // Draw name and student ID
-    ctx.font = '28px Roboto';
-    ctx.fillStyle = 'black';
-    ctx.fillText(nameField.textContent, 320, 250);
-    ctx.fillText(studentIdField.textContent, 380, 330);
-
-    // Draw "Gültig bis"
-    ctx.font = '32px Roboto bold';
-    ctx.fillText(additionalTextField.textContent, 120, 500);
-}
     </script>
-
 </body>
 </html>
