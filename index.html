@@ -5,17 +5,59 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generate Your Student ID Card</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+        <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/moritzgauss/ermaessigt/main/assets/IMG_7821.png">
+            <link rel="apple-touch-icon" href="https://raw.githubusercontent.com/moritzgauss/ermaessigt/main/assets/IMG_7821.png">
     <style>
         body {
             font-family: 'Roboto', sans-serif;
+            padding: 20px;
+            margin: 0;
+            background: url('https://raw.githubusercontent.com/moritzgauss/ermaessigt/main/assets/IMG_4574.png') no-repeat center center fixed;
+            background-size: cover;
+            height: 100vw;
+            width: 100vw;
             display: flex;
             flex-direction: column;
-            align-items: center;
-            padding: 20px;
+            align-items: flex-start;
         }
 
         h1 {
-            text-align: center;
+            text-align: left;
+            display: inline-block;
+        }
+
+        .audio-player {
+            display: inline-block;
+            margin-left: 20px;
+            padding: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+        }
+
+        .audio-player button {
+            padding: 5px;
+            font-size: 14px;
+            color: white;
+            background-color: #007bff;
+            border: none;
+            border-radius: 50%;
+            margin-right: 10px;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .audio-player input[type="range"] {
+            width: 200px;
+            margin-right: 10px;
+        }
+
+        .audio-time {
+            font-size: 12px;
         }
 
         .input-fields {
@@ -30,68 +72,156 @@
             width: 300px;
         }
 
-        .canvas-container {
+        .id-card {
+            width: 956px;
+            height: 640px;
+            border: 2px solid black;
             position: relative;
+            background: url('https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/IMG_4570.png') no-repeat center center;
+            background-size: cover;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: flex-start;
+            padding: 20px;
+            color: black;
+            font-size: 24px;
+            margin-bottom: 20px;
         }
 
-        canvas {
-            border: 2px solid black;
-            margin-top: 20px;
+        .uploaded-image {
+            width: 160px;
+            height: 160px;
+            object-fit: cover;
+            position: absolute;
+            top: 200px;
+            left: 120px;
+        }
+
+        #nameField {
+            position: absolute;
+            top: 230px;
+            left: 290px;
+            font-size: 28px;
+        }
+
+        #studentIdField {
+            position: absolute;
+            top: 360px;
+            left: 290px;
+            font-size: 26px;
+            font-weight: bold;
+        }
+
+        #additionalTextField {
+            position: absolute;
+            top: 500px;
+            left: 120px;
+            font-size: 32px;
+            font-weight: bold;
+        }
+
+        #randomLogo {
+            position: absolute;
+            width: 100px;
+            height: 100px;
+            top: 120px;
+            right: 120px;
+            border: none;
         }
 
         .button-container {
-            position: absolute;
-            right: 0;
-            top: -40px;
             display: flex;
-            gap: 10px;
+            justify-content: center;
+            margin-bottom: 20px;
         }
 
-        #downloadButton, #clearCanvasButton {
-            margin-top: 20px;
-            padding: 10px 20px;
+        button {
+            padding: 15px 30px;
             font-size: 16px;
             cursor: pointer;
+            margin: 10px;
+            border-radius: 10px;
+            background: linear-gradient(to bottom, #e2e2e2, #d1d1d1);
+            color: black;
+            border: 1px solid #bbb;
+            width: 200px;
+            text-align: center;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        button:hover {
+            background: linear-gradient(to bottom, #f3f3f3, #e2e2e2);
+        }
+
+        button:active {
+            background: linear-gradient(to bottom, #c9c9c9, #b8b8b8);
+        }
+
+        .neu-ausfuellen-btn {
+            background-color: #FF4500;
+            color: white;
+        }
+
+        #randomLogoButton {
+            background-color: #FF9800;
         }
 
     </style>
 </head>
 <body>
 
-    <h1>Generate Your Student ID Card</h1>
+    <h1>Gönn dir ermäßigten Eintritt ;)</h1>
+
+    <div class="audio-player">
+        <button id="playButton">▶</button>
+        <input type="range" id="audioProgress" value="0" min="0" max="100" step="1">
+        <span class="audio-time" id="currentTime">0:00</span>
+        <span class="audio-time">/</span>
+        <span class="audio-time" id="durationTime">0:00</span>
+        <audio id="einsteinAudio" src="https://raw.githubusercontent.com/moritzgauss/ermaessigt/main/assets/einstein.mp3"></audio>
+    </div>
 
     <!-- Input fields for the user to fill out -->
     <div class="input-fields">
-        <input type="text" id="studentId" placeholder="Student Number?" maxlength="7">
-        <input type="text" id="lastName" placeholder="Last name?">
-        <input type="text" id="firstName" placeholder="First name?">
-        <input type="text" id="additionalText" placeholder="Year?">
+        <input type="text" id="studentId" placeholder="Matrikelnunmer?" maxlength="7">
+        <input type="text" id="lastName" placeholder="Nachname?">
+        <input type="text" id="firstName" placeholder="Vorname?">
+        <input type="text" id="additionalText" placeholder="Gültig bis?">
         <input type="file" id="imageUpload" accept="image/*">
     </div>
 
-    <!-- The Canvas and button container -->
-    <div class="canvas-container">
-        <canvas id="idCardCanvas" width="956" height="640"></canvas>
-        
-        <!-- Buttons for adding a random logo, switching to English ID, and clearing the canvas -->
-        <div class="button-container">
-            <button id="randomLogoButton">Add Random Logo</button>
-            <button id="switchLanguageButton">English ID</button>
-            <button id="showBackButton">Show Back of ID</button>
-        </div>
+    <!-- ID Card structure -->
+    <div id="idCard" class="id-card">
+        <img id="uploadedImage" class="uploaded-image" alt="Profile Image">
+        <div id="nameField"></div>
+        <div id="studentIdField"></div>
+        <div id="additionalTextField"></div>
+        <img id="randomLogo" src="" alt="Random Logo">
     </div>
 
-    <button id="downloadButton">Download ID as PNG</button>
-    <button id="clearCanvasButton">Clear Canvas</button>
+    <div class="button-container">
+        <button id="randomLogoButton">Random Uni Logo</button>
+        <button class="neu-ausfuellen-btn" id="clearButton">Neu Ausfüllen</button>
+    </div>
 
+    <div class="button-container">
+        <button id="downloadButton">Download Studentenausweis als .png</button>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.7/dist/html2canvas.min.js"></script>
     <script>
-        const canvas = document.getElementById('idCardCanvas');
-        const ctx = canvas.getContext('2d');
-        let isEnglish = false; // Track the language state
-        let isBackShown = false; // Track if the back of the ID is shown
-        let backgroundImageSrc = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.001.png';
-        const backgroundImage = new Image();
-        backgroundImage.src = backgroundImageSrc;
+        const idCard = document.getElementById('idCard');
+        const studentIdField = document.getElementById('studentIdField');
+        const nameField = document.getElementById('nameField');
+        const additionalTextField = document.getElementById('additionalTextField');
+        const uploadedImage = document.getElementById('uploadedImage');
+        const randomLogoImg = document.getElementById('randomLogo');
+        const einsteinAudio = document.getElementById('einsteinAudio');
+        const playButton = document.getElementById('playButton');
+        const audioProgress = document.getElementById('audioProgress');
+        const currentTime = document.getElementById('currentTime');
+        const durationTime = document.getElementById('durationTime');
 
         // List of logos
         const logos = [
@@ -100,162 +230,96 @@
             'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/Seal_of_Leland_Stanford_Junior_University.png',
             'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/UdK_Berlin-Logo_farbig.svg.png',
             'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/UniversitaetTuebingen_WortBildMarke.png',
-            'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/Universität_Potsdam_logo.svg.png'
+            'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/assets/Universität_Potsdam_logo.svg.png'
         ];
 
-        // Load background image onto canvas when image is ready
-        backgroundImage.onload = function() {
-            drawCanvas();
-        };
-
-        // Variables for storing the text and image
-        let uploadedImage = null;
-        let additionalText = '';
-        let studentId = '';
-        let lastName = '';
-        let firstName = '';
-        let randomLogo = null;
-
-        // Event listeners for input fields
-        document.getElementById('additionalText').addEventListener('input', function(e) {
-            additionalText = e.target.value;
-            drawCanvas();
-        });
-
+        // Update text fields
         document.getElementById('studentId').addEventListener('input', function(e) {
-            studentId = e.target.value;
-            drawCanvas();
+            studentIdField.textContent = "Matnr.: " + e.target.value;
         });
 
         document.getElementById('lastName').addEventListener('input', function(e) {
-            lastName = e.target.value;
-            drawCanvas();
+            const firstName = document.getElementById('firstName').value;
+            nameField.textContent = firstName + " " + e.target.value;
         });
 
         document.getElementById('firstName').addEventListener('input', function(e) {
-            firstName = e.target.value;
-            drawCanvas();
+            const lastName = document.getElementById('lastName').value;
+            nameField.textContent = e.target.value + " " + lastName;
         });
 
-        // Image upload event listener
+        document.getElementById('additionalText').addEventListener('input', function(e) {
+            additionalTextField.textContent = "Gültig bis: " + e.target.value;
+        });
+
+        // Image upload logic
         document.getElementById('imageUpload').addEventListener('change', function(e) {
             const reader = new FileReader();
             reader.onload = function(event) {
-                uploadedImage = new Image();
                 uploadedImage.src = event.target.result;
-                uploadedImage.onload = function() {
-                    drawCanvas();
-                }
-            }
+            };
             reader.readAsDataURL(e.target.files[0]);
         });
-
-        // Draw everything on the canvas, with cropping logic for the uploaded image and random logo
-        function drawCanvas() {
-            // Clear the canvas
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            
-            // Draw background image
-            ctx.drawImage(backgroundImage, 0, 0, canvas.width, canvas.height);
-
-            // Draw uploaded image (if available), cropped and resized
-            if (uploadedImage && !isBackShown) {
-                // Crop the uploaded image to fit the desired space
-                const imgWidth = uploadedImage.width;
-                const imgHeight = uploadedImage.height;
-                const cropSize = Math.min(imgWidth, imgHeight); // Square crop
-                const cropX = (imgWidth - cropSize) / 2;
-                const cropY = (imgHeight - cropSize) / 2;
-                ctx.drawImage(uploadedImage, cropX, cropY, cropSize, cropSize, 100, 200, 160, 160); // Adjusted position and size
-            }
-
-            // Set text properties
-            ctx.fillStyle = 'black';
-
-            // Draw name above "Matnr."
-            if (!isBackShown) {
-                ctx.font = '28px Roboto';
-                ctx.fillText(firstName + " " + lastName, 280, 230);  // Adjusted name position
-
-                // Draw "Matnr." label and matriculation number
-                ctx.font = '24px Roboto';
-                ctx.fillText("Matnr.", 280, 310);  // Adjusted "Matnr." label position
-                ctx.fillText(studentId, 380, 310);  // Adjusted matriculation number position
-
-                // Draw year in the grey bar
-                ctx.font = 'bold 36px Roboto';
-                ctx.fillText("bis " + additionalText, 100, 520);  // Adjusted year position in the grey bar
-            }
-
-            // Draw random logo, cropped and resized, if available
-            if (randomLogo && !isBackShown) {
-                ctx.drawImage(randomLogo, 0, 0, randomLogo.width, randomLogo.height, canvas.width - 180, 120, 100, 100); // Adjusted logo position
-            }
-        }
 
         // Button to add a random logo
         document.getElementById('randomLogoButton').addEventListener('click', function() {
             const randomIndex = Math.floor(Math.random() * logos.length);
-            const logoImage = new Image();
-            logoImage.src = logos[randomIndex];
-            logoImage.onload = function() {
-                randomLogo = logoImage;
-                drawCanvas();
-            };
+            randomLogoImg.src = logos[randomIndex];
         });
 
-        // Button to switch between English and Studentenausweis
-        document.getElementById('switchLanguageButton').addEventListener('click', function() {
-            isEnglish = !isEnglish;  // Toggle the state
-
-            if (isEnglish) {
-                backgroundImage.src = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.002.png';
-                this.textContent = "Studentenausweis";
-            } else {
-                backgroundImage.src = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.001.png';
-                this.textContent = "English ID";
-            }
-
-            drawCanvas();
-        });
-
-        // Button to show the back of the ID
-        document.getElementById('showBackButton').addEventListener('click', function() {
-            isBackShown = !isBackShown;  // Toggle the state
-
-            if (isBackShown) {
-                backgroundImage.src = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.003.png';
-                this.textContent = "Show Front of ID";
-            } else {
-                backgroundImage.src = 'https://raw.githubusercontent.com/moritzgauss/ermaessigt/refs/heads/main/Input/Ohne%20Titel.001.png';
-                this.textContent = "Show Back of ID";
-            }
-
-            drawCanvas();
-        });
-
-        // Button to download the canvas content as an image
+        // Button to download the card as an image
         document.getElementById('downloadButton').addEventListener('click', function() {
-            const link = document.createElement('a');
-            link.download = 'student_id.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
+            html2canvas(idCard).then(function(canvas) {
+                const link = document.createElement('a');
+                link.download = 'student_id.png';
+                link.href = canvas.toDataURL('image/png');
+                link.click();
+            });
         });
 
-        // Button to clear the canvas and reset input fields
-        document.getElementById('clearCanvasButton').addEventListener('click', function() {
-            uploadedImage = null;
-            additionalText = '';
-            studentId = '';
-            lastName = '';
-            firstName = '';
-            randomLogo = null;
-            document.getElementById('additionalText').value = '';
+        // Clear button to reset fields
+        document.getElementById('clearButton').addEventListener('click', function() {
             document.getElementById('studentId').value = '';
             document.getElementById('lastName').value = '';
             document.getElementById('firstName').value = '';
-            drawCanvas();
+            document.getElementById('additionalText').value = '';
+            studentIdField.textContent = '';
+            nameField.textContent = '';
+            additionalTextField.textContent = '';
+            uploadedImage.src = '';
+            randomLogoImg.src = '';
         });
+
+        // Play/pause the Einstein audio
+        playButton.addEventListener('click', function() {
+            if (einsteinAudio.paused) {
+                einsteinAudio.play();
+                playButton.textContent = '❚❚'; // Pause symbol
+            } else {
+                einsteinAudio.pause();
+                playButton.textContent = '▶'; // Play symbol
+            }
+        });
+
+        // Update audio progress
+        einsteinAudio.addEventListener('loadedmetadata', function() {
+            durationTime.textContent = formatTime(einsteinAudio.duration);
+        });
+
+        einsteinAudio.addEventListener('timeupdate', function() {
+            audioProgress.value = (einsteinAudio.currentTime / einsteinAudio.duration) * 100;
+            currentTime.textContent = formatTime(einsteinAudio.currentTime);
+        });
+
+        audioProgress.addEventListener('input', function() {
+            einsteinAudio.currentTime = (audioProgress.value / 100) * einsteinAudio.duration;
+        });
+
+        function formatTime(seconds) {
+            const minutes = Math.floor(seconds / 60);
+            const secs = Math.floor(seconds % 60);
+            return `${minutes}:${secs < 10 ? '0' : ''}${secs}`;
+        }
     </script>
 
 </body>
