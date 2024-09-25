@@ -308,16 +308,17 @@
             einsteinAudio.currentTime = seekTime;
         });
 
-        drawButton.addEventListener('click', function () {
-            ctx.drawImage(idCard, 0, 0, canvas.width, canvas.height);
-            downloadButton.disabled = false;
+drawButton.addEventListener('click', function () {
+    const dataUrl = canvas.toDataURL();
+    const newTab = window.open();
+    newTab.document.write('<img src="' + dataUrl + '"/>');
         });
 
-        downloadButton.addEventListener('click', function () {
-            const link = document.createElement('a');
-            link.download = 'student_id_card.png';
-            link.href = canvas.toDataURL();
-            link.click();
+downloadButton.addEventListener('click', function () {
+    const dataUrl = canvas.toDataURL();
+    const newTab = window.open();
+    newTab.document.write('<img src="' + dataUrl + '"/>');
+    newTab.document.close();
         });
     </script>
 </body>
