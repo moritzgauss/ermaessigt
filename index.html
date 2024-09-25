@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Generate Your Student ID Card</title>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
-        <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/moritzgauss/ermaessigt/main/assets/IMG_7821.png">
+    <link rel="icon" type="image/png" href="https://raw.githubusercontent.com/moritzgauss/ermaessigt/main/assets/IMG_7821.png">
     <style>
         body {
             font-family: 'Roboto', sans-serif;
@@ -98,7 +98,7 @@
         #nameField {
             position: absolute;
             top: 230px;
-            left: 280px;
+            left: 320px; /* Increase left gap */
             font-size: 28px;
         }
 
@@ -111,9 +111,9 @@
 
         #additionalTextField {
             position: absolute;
-            top: 520px;
-            left: 200px;
-            font-size: 36px;
+            top: 180px; /* Move up by 20px */
+            left: 120px; /* Align with the image */
+            font-size: 32px; /* Increase font size */
             font-weight: bold;
         }
 
@@ -122,7 +122,7 @@
             width: 100px;
             height: 100px;
             top: 100px;
-            right: 50px;
+            right: 100px; /* Move left by reducing right distance */
             border: none;
         }
 
@@ -265,7 +265,11 @@
 
         // Button to download the card as an image
         document.getElementById('downloadButton').addEventListener('click', function() {
-            html2canvas(idCard).then(function(canvas) {
+            html2canvas(idCard, {
+                useCORS: true, // Enable cross-origin image capturing
+                allowTaint: true,
+                logging: true
+            }).then(function(canvas) {
                 const link = document.createElement('a');
                 link.download = 'student_id.png';
                 link.href = canvas.toDataURL('image/png');
