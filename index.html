@@ -252,11 +252,14 @@
         });
 
         document.getElementById('imageUpload').addEventListener('change', function (e) {
+            const file = e.target.files[0];
             const reader = new FileReader();
             reader.onload = function (event) {
                 uploadedImage.src = event.target.result;
             };
-            reader.readAsDataURL(e.target.files[0]);
+            if (file) {
+                reader.readAsDataURL(file);
+            }
         });
 
         document.getElementById('randomLogoButton').addEventListener('click', function () {
@@ -265,38 +268,32 @@
         });
 
         document.getElementById('clearButton').addEventListener('click', function () {
-            document.getElementById('studentId').value = "";
-            document.getElementById('lastName').value = "";
-            document.getElementById('firstName').value = "";
-            document.getElementById('additionalText').value = "";
-            studentIdField.textContent = "";
-            nameField.textContent = "";
-            additionalTextField.textContent = "";
-            uploadedImage.src = "";
-            randomLogoImg.src = "";
+            document.getElementById('studentId').value = '';
+            document.getElementById('lastName').value = '';
+            document.getElementById('firstName').value = '';
+            document.getElementById('additionalText').value = '';
+            studentIdField.textContent = '';
+            nameField.textContent = '';
+            additionalTextField.textContent = '';
+            uploadedImage.src = '';
+            randomLogoImg.src = '';
         });
-
-        // Delay function to show download button after 3 seconds
-        function showDownloadButton() {
-            setTimeout(() => {
-                document.getElementById('downloadButton').style.display = 'block';
-            }, 3000); // Delay for 3 seconds
-        }
 
         document.getElementById('downloadButton').addEventListener('click', function () {
             ctx.drawImage(idCard, 0, 0, canvas.width, canvas.height);
-            const imageData = canvas.toDataURL('image/png');
-            const link = document.createElement('a');
-            link.href = imageData;
-            link.download = 'student_card.png';
-            link.click();
+
+            setTimeout(() => {
+                const link = document.createElement('a');
+                link.download = 'student_id.png';
+                link.href = canvas.toDataURL();
+                link.click();
+            }, 500);
         });
 
-        // Initialize audio player
         playButton.addEventListener('click', function () {
             if (einsteinAudio.paused) {
                 einsteinAudio.play();
-                playButton.textContent = '❚❚';
+                playButton.textContent = '⏸️';
             } else {
                 einsteinAudio.pause();
                 playButton.textContent = '▶';
@@ -304,28 +301,23 @@
         });
 
         einsteinAudio.addEventListener('timeupdate', function () {
-            const progress = (einsteinAudio.currentTime / einsteinAudio.duration) * 100;
-            audioProgress.value = progress;
+            audioProgress.value = (einsteinAudio.currentTime / einsteinAudio.duration) * 100;
             currentTime.textContent = formatTime(einsteinAudio.currentTime);
+        });
+
+        audioProgress.addEventListener('input', function () {
+            einsteinAudio.currentTime = (audioProgress.value / 100) * einsteinAudio.duration;
         });
 
         einsteinAudio.addEventListener('loadedmetadata', function () {
             durationTime.textContent = formatTime(einsteinAudio.duration);
         });
 
-        audioProgress.addEventListener('input', function () {
-            const seekTime = (audioProgress.value / 100) * einsteinAudio.duration;
-            einsteinAudio.currentTime = seekTime;
-        });
-
         function formatTime(seconds) {
             const minutes = Math.floor(seconds / 60);
-            const secs = Math.floor(seconds % 60);
-            return minutes + ':' + (secs < 10 ? '0' : '') + secs;
+            const remainingSeconds = Math.floor(seconds % 60);
+            return minutes + ':' + (remainingSeconds < 10 ? '0' : '') + remainingSeconds;
         }
-
-        showDownloadButton();
     </script>
-
 </body>
 </html>
